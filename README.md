@@ -112,26 +112,30 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 ## Setup Instructions
 
 ### Clone the repository
+```bash
 git clone https://github.com/your-username/explorapedia.git
 cd explorapedia
-
+```
 
 ### Install frontend dependencies
+```bash
 cd frontend
 npm install
 npm run dev
-
+```
 
 ### Install backend dependencies
+```bash
 cd backend
 npm install
 node server.js
-
+```
 
 ### Environment Variables
 
 Create a `.env` file in the backend folder:
+```
 MONGO_URI=your_mongodb_connection
 JWT_SECRET=your_secret_key
 API_KEY=your_api_key
----
+```

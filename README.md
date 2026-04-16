@@ -106,3 +106,32 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 - Trip database models
 - Attractions API integration
 - Trip sharing functionality
+
+---
+
+## Setup Instructions
+
+### Clone the repository
+git clone https://github.com/your-username/explorapedia.git
+cd explorapedia
+
+
+### Install frontend dependencies
+cd frontend
+npm install
+npm run dev
+
+
+### Install backend dependencies
+cd backend
+npm install
+node server.js
+
+
+### Environment Variables
+
+Create a `.env` file in the backend folder:
+MONGO_URI=your_mongodb_connection
+JWT_SECRET=your_secret_key
+API_KEY=your_api_key
+---

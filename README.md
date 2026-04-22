@@ -130,12 +130,3 @@ cd backend
 npm install
 node server.js
 ```
-
-### Environment Variables
-
-Create a `.env` file in the backend folder:
-```
-MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-API_KEY=your_api_key
-```

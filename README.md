@@ -49,28 +49,24 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 ## Technology Stack
 
 ### Frontend
-- React.js
+- React
 - Vite
-- HTML5
-- CSS3
-- Tailwind CSS
 - Axios
 - React Router
 
 ### Backend
 - Node.js
-- Express.js
-
-### Database
-- MongoDB Atlas
-- Mongoose
+- Express
+- MongoDB native driver
+- dotenv
+- Axios for external API calls
 
 ### Authentication
 - JSON Web Tokens (JWT)
 - bcrypt
 
 ### External APIs
-- Google Places API or Foursquare API
+- Foursquare API
 
 ### Deployment
 - Frontend: Vercel
@@ -111,22 +107,64 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 
 ## Setup Instructions
 
-### Clone the repository
+### Prerequisites
+- Node.js 18 or newer
+- npm
+- A MongoDB Atlas cluster or other MongoDB instance
+- A Foursquare API key for attraction search
+
+### 1. Clone the repository
 ```bash
 git clone https://github.com/your-username/explorapedia.git
 cd explorapedia
 ```
 
-### Install frontend dependencies
+### 2. Install frontend dependencies
 ```bash
 cd frontend
 npm install
+```
+
+### 3. Install backend dependencies
+```bash
+cd ../backend
+npm install
+```
+
+### 4. Create backend environment variables
+Copy `backend/.env.example` to `backend/.env` and fill in your values.
+
+Example:
+```bash
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.example.mongodb.net
+MONGODB_DB_NAME=explorapedia
+FOURSQUARE_API_KEY=your_foursquare_api_key
+PORT=3001
+```
+
+### 5. Run the frontend
+```bash
+cd ../frontend
 npm run dev
 ```
 
-### Install backend dependencies
+### 6. Run the backend
 ```bash
-cd backend
-npm install
-node server.js
+cd ../backend
+npm run dev
 ```
+
+### 7. Verify the backend
+- Health check: `http://localhost:3001/health`
+- Auth test route: `http://localhost:3001/api/auth/test`
+- Attractions route: `http://localhost:3001/api/attractions/<city>`
+
+Example:
+```bash
+http://localhost:3001/api/attractions/london
+```
+
+### Notes for the team
+- The backend currently uses CommonJS modules, the native MongoDB driver, and a Foursquare attraction search route.
+- If you pull a branch that adds Mongoose or switches to ES modules, make sure the README and `package.json` stay aligned with that branch’s stack.
+- Each developer can work on their own area after installing dependencies and setting up the `.env` file.

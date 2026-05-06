@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { connectToMongo, getDb } = require('./mongo');
 const attractionRoutes = require('./routes/attractionRoutes');
+const tripRoutes = require('./routes/tripRoutes');
 
 const app = express();
 // parse JSON bodies
@@ -10,6 +11,7 @@ app.use(express.json());
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/attractions', attractionRoutes);
+app.use('/api/trips', tripRoutes);
 const port = process.env.PORT || 3001;
 
 app.get('/api/test', (req, res) => {

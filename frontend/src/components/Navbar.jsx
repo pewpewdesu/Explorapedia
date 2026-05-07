@@ -12,13 +12,16 @@ export default function Navbar() {
         <Link to="/explore" className="hover:text-yellow-300 transition">
           Explore
         </Link>
+        <Link to="/trips" className="hover:text-yellow-300 transition">
+          Trips
+        </Link>
 
         {/* Adding Login/Register to Navbar */}
-        <Link to = "/login" className = "hover:text-yellow-300 transition"> 
-            Login
+        <Link to="/login" className="hover:text-yellow-300 transition">
+          Login
         </Link>
-        <Link to = "/register" className = "hover:text-yellow-300 transition"> 
-            Register
+        <Link to="/register" className="hover:text-yellow-300 transition">
+          Register
         </Link>
 
       </div>

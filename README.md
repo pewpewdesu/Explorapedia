@@ -164,6 +164,73 @@ Example:
 http://localhost:3001/api/attractions/london
 ```
 
+## Trips API (new)
+
+The backend exposes endpoints to create and manage trips and attach attractions.
+
+- Base path: `/api/trips`
+- Protected: all trip endpoints require a valid JWT in the `Authorization: Bearer <token>` header.
+
+Examples (replace `:id` and `:fsq_id` as needed):
+
+- Create a trip
+```bash
+curl -X POST http://localhost:3001/api/trips \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Weekend in Paris","city":"Paris"}'
+```
+
+- List my trips
+```bash
+curl http://localhost:3001/api/trips -H "Authorization: Bearer $TOKEN"
+```
+
+- Get a trip
+```bash
+curl http://localhost:3001/api/trips/:id -H "Authorization: Bearer $TOKEN"
+```
+
+- Add an attraction by Foursquare place id (`fsq_id`)
+```bash
+curl -X PUT http://localhost:3001/api/trips/:id/attractions \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"fsq_id":"<FOURSQUARE_PLACE_ID>"}'
+```
+
+- Remove an attraction
+```bash
+curl -X DELETE http://localhost:3001/api/trips/:id/attractions/:fsq_id \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+- Delete a trip
+```bash
+curl -X DELETE http://localhost:3001/api/trips/:id -H "Authorization: Bearer $TOKEN"
+```
+
+Frontend notes
+- New pages/components:
+  - `frontend/src/pages/Trips.jsx` — create/list/delete trips
+  - `frontend/src/pages/TripDetail.jsx` — view trip and add/remove attractions using `fsq_id`
+  - `frontend/src/api/trips.js` — API helper functions
+
+To run the full app locally:
+```bash
+# backend
+cd backend
+cp .env.example .env
+# fill values in .env (MONGODB_URI, FOURSQUARE_API_KEY, JWT_SECRET)
+npm install
+npm run dev
+
+# frontend
+cd ../frontend
+npm install
+npm run dev
+```
+
 ### Notes for the team
 - The backend currently uses CommonJS modules, the native MongoDB driver, and a Foursquare attraction search route.
 - If you pull a branch that adds Mongoose or switches to ES modules, make sure the README and `package.json` stay aligned with that branch’s stack.

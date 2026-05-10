@@ -1,25 +1,75 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 export default function Explore() {
-  
-    const places = [
-    { name: "Paris", desc: "City of Light" },
-    { name: "New York", desc: "The Big Apple" },
-    { name: "Tokyo", desc: "Modern meets tradition" },
-    { name: "Dubai", desc: "Luxury city" },
-  ];
+  const [search, setSearch] = useState("");
+  const [attractions, setAttractions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 🌐 Fetch real data (GeoDB Cities as “attractions base”)
+  useEffect(() => {
+    fetch(
+      "https://wft-geo-db.p.rapidapi.com/v1/geo/cities?limit=20",
+      {
+        method: "GET",
+        headers: {
+          "X-RapidAPI-Key": "YOUR_API_KEY_HERE",
+          "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setAttractions(data.data || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // 🔍 Filter search
+  const filtered = attractions.filter((item) =>
+    item.city.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="p-6 min-h-screen bg-gray-50">
-      <h2 className="text-3xl font-bold mb-6">Explore Destinations 🌍</h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
 
+      {/* Title */}
+      <h1 className="text-4xl font-bold text-center mb-6">
+        Explore Attractions 🌍
+      </h1>
+
+      {/* Search Bar */}
+      <div className="flex justify-center mb-8">
+        <input
+          type="text"
+          placeholder="Search attractions..."
+          className="w-full max-w-md p-3 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <p className="text-center text-gray-500">Loading attractions...</p>
+      )}
+
+      {/* Grid */}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {places.map((place, i) => (
+        {filtered.map((item) => (
           <div
-            key={i}
-            className="bg-white p-5 rounded-xl shadow hover:shadow-xl hover:-translate-y-1 transition"
+            key={item.id}
+            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-xl hover:-translate-y-1 transition"
           >
-            <h3 className="font-bold text-lg">{place.name}</h3>
-            <p className="text-gray-600">{place.desc}</p>
+            <h2 className="text-xl font-bold text-gray-800">
+              {item.city}
+            </h2>
+
+            <p className="text-gray-500">{item.country}</p>
+
+            <div className="mt-3 text-sm text-gray-400">
+              Population:{" "}
+              {item.population?.toLocaleString() || "N/A"}
+            </div>
           </div>
         ))}
       </div>

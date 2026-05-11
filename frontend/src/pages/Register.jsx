@@ -4,24 +4,24 @@ import api from '../services/api'
 
 export default function Register() 
 { 
-    const [form, setForm] = useState({username: '', email: '', password: '', confirm: ''})
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
+    const [form, setForm] = useState({username: '', email: '', password: '', confirm: ''});
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setForm({...form, [e.target.name]: e.target.value })
-        setError('')
+        setForm({...form, [e.target.name]: e.target.value });
+        setError('');
     }
 
     const handleSubmit = async (e) =>{
-        e.preventDefault()
-        setError('')
+        e.preventDefault();
+        setError('');
 
         if(form.password !== form.confirm)
         {
-            setError('Passwords do not match')
-            return
+            setError('Passwords do not match');
+            return;
         }
 
         setLoading(true)
@@ -32,14 +32,14 @@ export default function Register()
                 username: form.username,
                 email: form.email,
                 password: form.password
-            })
-            localStorage.setItem('token', res.data.token)
-            localStorage.setItem('userId', res.data.userId)
-            navigate('/')
+            });
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('userId', res.data.userId);
+            navigate('/');
         } catch (err){
-            setError(err.response?.data?.message || 'Registration failed. Try again.')
+            setError(err.response?.data?.message || 'Registration failed. Try again.');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
     

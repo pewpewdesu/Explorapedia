@@ -1,13 +1,16 @@
 const { ObjectId } = require('mongodb');
 const { getDb } = require('../mongo');
 
-async function createTrip({ name, city, userId }) {
+async function createTrip({ name, city, userId, startDate, endDate, visibility = 'private' }) {
     const db = getDb();
     const result = await db.collection('trips').insertOne({
         name,
         city,
         userId: new ObjectId(userId),
-        attractions: [],
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        visibility, // 'private', 'friends', 'public'
+        itinerary: [], // array of { day: number, items: [{ id, name, address, time, notes, fsq_id }] }
         createdAt: new Date(),
     });
 
@@ -27,24 +30,109 @@ async function getTripById(tripId) {
     return db.collection('trips').findOne({ _id: new ObjectId(tripId) });
 }
 
-async function addAttractionToTrip(tripId, attraction) {
+async function addToItinerary(tripId, dayNum, item) {
+    const db = getDb();
+    // item should have: name, address, fsq_id, time (optional), notes (optional)
+    const itemWithId = { id: new ObjectId(), ...item };
+
+    const result = await db.collection('trips').findOneAndUpdate(
+        { _id: new ObjectId(tripId) },
+        {
+            $push: {
+                'itinerary.$[day].items': itemWithId,
+            },
+        },
+        {
+            arrayFilters: [{ 'day.day': dayNum }],
+            returnDocument: 'after',
+        }
+    );
+
+    // If no day exists, create it
+    if (!result.value) {
+        const addDayResult = await db.collection('trips').findOneAndUpdate(
+            { _id: new ObjectId(tripId) },
+            {
+                $push: {
+                    itinerary: { day: dayNum, items: [itemWithId] },
+                },
+            },
+            { returnDocument: 'after' }
+        );
+        return addDayResult.value;
+    }
+
+    return result.value;
+}
+
+async function editItineraryItem(tripId, dayNum, itemId, updates) {
+    const db = getDb();
+    const result = await db.collection('trips').findOneAndUpdate(
+        { _id: new ObjectId(tripId), 'itinerary.day': dayNum },
+        {
+            $set: {
+                'itinerary.$[day].items.$[item]': {
+                    ...updates,
+                    id: new ObjectId(itemId),
+                },
+            },
+        },
+        {
+            arrayFilters: [
+                { 'day.day': dayNum },
+                { 'item.id': new ObjectId(itemId) },
+            ],
+            returnDocument: 'after',
+        }
+    );
+    return result.value;
+}
+
+async function removeItineraryItem(tripId, dayNum, itemId) {
     const db = getDb();
     const result = await db.collection('trips').findOneAndUpdate(
         { _id: new ObjectId(tripId) },
-        { $push: { attractions: attraction } },
+        {
+            $pull: {
+                'itinerary.$[day].items': { id: new ObjectId(itemId) },
+            },
+        },
+        {
+            arrayFilters: [{ 'day.day': dayNum }],
+            returnDocument: 'after',
+        }
+    );
+    return result.value;
+}
+
+async function updateTripVisibility(tripId, userId, visibility) {
+    const db = getDb();
+    const result = await db.collection('trips').findOneAndUpdate(
+        { _id: new ObjectId(tripId), userId: new ObjectId(userId) },
+        { $set: { visibility } },
         { returnDocument: 'after' }
     );
     return result.value;
 }
 
-async function removeAttractionFromTrip(tripId, fsq_id) {
+async function getPublicTrips(limit = 20, skip = 0) {
     const db = getDb();
-    const result = await db.collection('trips').findOneAndUpdate(
-        { _id: new ObjectId(tripId) },
-        { $pull: { attractions: { fsq_id } } },
-        { returnDocument: 'after' }
-    );
-    return result.value;
+    return db
+        .collection('trips')
+        .find({ visibility: 'public' })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .toArray();
+}
+
+async function getPublicTripById(tripId) {
+    const db = getDb();
+    const trip = await db.collection('trips').findOne({
+        _id: new ObjectId(tripId),
+        visibility: 'public',
+    });
+    return trip;
 }
 
 async function deleteTrip(tripId, userId) {
@@ -60,7 +148,11 @@ module.exports = {
     createTrip,
     getTripsByUser,
     getTripById,
-    addAttractionToTrip,
-    removeAttractionFromTrip,
+    addToItinerary,
+    editItineraryItem,
+    removeItineraryItem,
+    updateTripVisibility,
+    getPublicTrips,
+    getPublicTripById,
     deleteTrip,
 };

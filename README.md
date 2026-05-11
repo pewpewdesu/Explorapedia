@@ -164,57 +164,100 @@ Example:
 http://localhost:3001/api/attractions/london
 ```
 
-## Trips API (new)
+## Trips API & Itinerary Logic
 
-The backend exposes endpoints to create and manage trips and attach attractions.
+The backend exposes comprehensive endpoints to create and manage trips with day-based itineraries and trip sharing.
 
-- Base path: `/api/trips`
-- Protected: all trip endpoints require a valid JWT in the `Authorization: Bearer <token>` header.
+### Trip Management (Protected - requires JWT token)
 
-Examples (replace `:id` and `:fsq_id` as needed):
+Base path: `/api/trips`
 
-- Create a trip
+**Create a trip** (with optional dates)
 ```bash
 curl -X POST http://localhost:3001/api/trips \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Weekend in Paris","city":"Paris"}'
+  -d '{
+    "name": "Tokyo Summer 2026",
+    "city": "Tokyo",
+    "startDate": "2026-06-01",
+    "endDate": "2026-06-07"
+  }'
 ```
 
-- List my trips
+**List my trips**
 ```bash
 curl http://localhost:3001/api/trips -H "Authorization: Bearer $TOKEN"
 ```
 
-- Get a trip
+**Get a specific trip**
 ```bash
 curl http://localhost:3001/api/trips/:id -H "Authorization: Bearer $TOKEN"
 ```
 
-- Add an attraction by Foursquare place id (`fsq_id`)
+### Itinerary Management (Protected)
+
+Organize attractions by day with time and notes.
+
+**Add item to itinerary for a specific day**
 ```bash
-curl -X PUT http://localhost:3001/api/trips/:id/attractions \
+curl -X POST http://localhost:3001/api/trips/:id/itinerary/:day \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"fsq_id":"<FOURSQUARE_PLACE_ID>"}'
+  -d '{"fsq_id": "<FOURSQUARE_PLACE_ID>", "time": "14:00", "notes": "Book tickets in advance"}'
 ```
 
-- Remove an attraction
+**Edit itinerary item** (update time/notes)
 ```bash
-curl -X DELETE http://localhost:3001/api/trips/:id/attractions/:fsq_id \
+curl -X PUT http://localhost:3001/api/trips/:id/itinerary/:day/:itemId \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"time": "15:00", "notes": "Updated notes"}'
+```
+
+**Remove itinerary item**
+```bash
+curl -X DELETE http://localhost:3001/api/trips/:id/itinerary/:day/:itemId \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-- Delete a trip
+### Trip Sharing (Protected)
+
+**Update trip visibility** (private, friends, or public)
+```bash
+curl -X PUT http://localhost:3001/api/trips/:id/visibility \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"visibility": "public"}'
+```
+
+**Delete a trip**
 ```bash
 curl -X DELETE http://localhost:3001/api/trips/:id -H "Authorization: Bearer $TOKEN"
 ```
 
-Frontend notes
-- New pages/components:
-  - `frontend/src/pages/Trips.jsx` — create/list/delete trips
-  - `frontend/src/pages/TripDetail.jsx` — view trip and add/remove attractions using `fsq_id`
-  - `frontend/src/api/trips.js` — API helper functions
+### Browse Public Trips (No auth required)
+
+**Get public trips feed**
+```bash
+curl http://localhost:3001/api/trips/shared/feed?limit=20&skip=0
+```
+
+**Get a public trip**
+```bash
+curl http://localhost:3001/api/trips/shared/:id
+```
+
+### Frontend Pages
+
+- **Trips** (`/trips`) — Create, list, and manage your private trips
+- **TripDetail** (`/trips/:id`) — View/edit trip itinerary with day-based organization, visibility settings, and item notes/times
+- **SharedTrips** (`/shared-trips`) — Browse public trips shared by other users
+- **SharedTripDetail** (`/shared-trips/:id`) — View public trip details and itinerary
+
+### API Helpers (`frontend/src/api/trips.js`)
+
+Functions for trips CRUD, itinerary management, visibility control, and public trips browsing:
 
 To run the full app locally:
 ```bash

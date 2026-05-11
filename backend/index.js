@@ -7,6 +7,11 @@ const tripRoutes = require('./routes/tripRoutes');
 const app = express();
 // parse JSON bodies
 app.use(express.json());
+
+//allows requests from frontend
+const cors = require('cors')
+app.use(cors())
+
 // auth routes (scaffolded)
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);

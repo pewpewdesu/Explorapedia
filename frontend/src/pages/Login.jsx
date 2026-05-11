@@ -4,27 +4,27 @@ import api from '../services/api'
 
 export default function Login() 
 {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const navigate = useNavigate()
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => 
     {
-        e.preventDefault()
-        setError('')
-        setLoading(true)
+        e.preventDefault();
+        setError('');
+        setLoading(true);
 
         try{
-            const res = await api.post('/auth/login', { email, password})
-            localStorage.setItem('token', res.data.token)
-            localStorage.setItem('userId', res.data.userId)
-            navigate('/')
+            const res = await api.post('/auth/login', { email, password});
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('userId', res.data.userId);
+            navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Try again.')
+            setError(err.response?.data?.message || 'Login failed. Try again.');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
     return(

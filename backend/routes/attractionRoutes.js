@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 
 const router = express.Router();
+const catchAsyncErrors = require('../middleware/errorHandler');
 
 function formatAddress(parts) {
     return parts.filter(Boolean).join(', ');
@@ -85,14 +86,14 @@ async function searchWithOpenStreetMap(city) {
     return elements.slice(0, 10).map((element) => normalizeOsmPlace(element, city));
 }
 
-router.get('/:city', async (req, res) => {
+router.get('/:city', catchAsyncErrors(async (req, res) => {
+    const city = req.params.city.trim();
+
+    if (!city) {
+        return res.status(400).json({ error: 'City is required' });
+    }
+
     try {
-        const city = req.params.city.trim();
-
-        if (!city) {
-            return res.status(400).json({ error: 'City is required' });
-        }
-
         const response = await axios.get(
             'https://api.foursquare.com/v3/places/search',
             {
@@ -108,17 +109,12 @@ router.get('/:city', async (req, res) => {
         );
 
         const results = (response.data.results || []).map(normalizeFoursquarePlace);
-        res.json(results);
+        return res.json(results);
     } catch (error) {
-        try {
-            const results = await searchWithOpenStreetMap(req.params.city.trim());
-            return res.json(results);
-        } catch (fallbackError) {
-            console.error(error.response?.data || error);
-            console.error(fallbackError.response?.data || fallbackError);
-            res.status(500).json({ error: 'Failed to fetch attractions' });
-        }
+        // Fallback to OpenStreetMap if Foursquare fails
+        const results = await searchWithOpenStreetMap(city);
+        return res.json(results);
     }
-});
+}));
 
 module.exports = router;

@@ -12,12 +12,11 @@ app.use(express.json());
 const cors = require('cors')
 app.use(cors())
 
-// auth routes (scaffolded)
+// auth routes
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/attractions', attractionRoutes);
 app.use('/api/trips', tripRoutes);
-const port = process.env.PORT || 3001;
 
 app.get('/api/test', (req, res) => {
     res.json({
@@ -34,6 +33,16 @@ app.get('/health', async (req, res) => {
         res.status(500).json({ status: 'error', database: 'disconnected' });
     }
 });
+
+// Global error handler (must be last)
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(err.status || 500).json({
+        message: err.message || 'Internal server error'
+    });
+});
+
+const port = process.env.PORT || 3001;
 
 async function startServer() {
     await connectToMongo();

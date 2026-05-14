@@ -75,6 +75,32 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 
 ---
 
+## Backend Architecture
+
+The backend follows a clean, maintainable structure with proper separation of concerns:
+
+### Error Handling
+- Centralized error handling via `middleware/errorHandler.js`
+- All async route handlers wrapped with `catchAsyncErrors()` to catch and standardize errors
+- Global error handler fallback in `index.js`
+- Consistent error response format across all endpoints
+
+### Data Models
+- **User Model** (`models/User.js`): User creation and lookup operations
+- **Trip Model** (`models/Trip.js`): Trip and itinerary management
+- All models use the MongoDB native driver via `getDb()` from `mongo.js`
+
+### Request Flow
+1. Request hits route handler
+2. `catchAsyncErrors()` wrapper catches any errors
+3. Handler uses model methods for database operations
+4. Response sent or error caught and formatted
+5. Global error handler as final fallback
+
+This architecture eliminates code duplication and makes the codebase easier to maintain and extend.
+
+---
+
 ## Team Members
 
 ### Sadia Shaikh (Frontend)
@@ -275,6 +301,8 @@ npm run dev
 ```
 
 ### Notes for the team
-- The backend currently uses CommonJS modules, the native MongoDB driver, and a Foursquare attraction search route.
-- If you pull a branch that adds Mongoose or switches to ES modules, make sure the README and `package.json` stay aligned with that branch’s stack.
-- Each developer can work on their own area after installing dependencies and setting up the `.env` file.
+- The backend uses CommonJS modules, the native MongoDB driver, and a Foursquare attraction search route with OpenStreetMap fallback
+- All route handlers should be wrapped with `catchAsyncErrors()` middleware to handle errors consistently
+- Database operations should go through model files in `models/` for consistency and reusability
+- If adding new routes, follow the existing pattern: import model methods, wrap handlers with `catchAsyncErrors()`, and let the centralized error handler manage responses
+- Each developer can work on their own area after installing dependencies and setting up the `.env` file

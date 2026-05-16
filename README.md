@@ -26,15 +26,18 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
 ### City Exploration
 - Search for cities
 - Display attractions in that city
-- View attraction information
+- View attraction information and details
+- Click attractions to view on Google Maps or visit website
 - Add attractions to trip itinerary
+- Success notifications when adding attractions
 
 ### Trip Planner
 - Create trips
 - Organize trips by day
-- Add attractions to itinerary
+- Add attractions to itinerary with detailed info
 - Add notes and times to itinerary items
 - Reorder itinerary items
+- View attraction details in trip planner
 
 ### Social Features
 - Share trips publicly
@@ -43,6 +46,8 @@ Travel planning is often fragmented across multiple platforms. Explorapedia aims
   - Friends
   - Public
 - Browse trips created by other users
+- Friends page to view trips shared with you
+- Share trips specifically with friends
 
 ---
 

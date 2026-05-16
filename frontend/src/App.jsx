@@ -8,6 +8,7 @@ import TripDetail from './pages/TripDetail'
 import SharedTrips from './pages/SharedTrips'
 import SharedTripDetail from './pages/SharedTripDetail'
 import Profile from './pages/Profile'
+import Friends from './pages/Friends'
 import Layout from './components/Layout'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/trips" element={<Trips />} />
           <Route path="/trips/:id" element={<TripDetail />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/friends" element={<Friends />} />
           <Route path="/shared-trips" element={<SharedTrips />} />
           <Route path="/shared-trips/:id" element={<SharedTripDetail />} />
         </Route>

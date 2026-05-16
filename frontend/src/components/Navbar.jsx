@@ -24,6 +24,9 @@ export default function Navbar() {
         <Link to="/trips" className="hover:text-yellow-300 transition">
           Trips
         </Link>
+        <Link to="/friends" className="hover:text-yellow-300 transition">
+          Friends
+        </Link>
         <Link to="/shared-trips" className="hover:text-yellow-300 transition">
           Shared Trips
         </Link>

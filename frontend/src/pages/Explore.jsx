@@ -1,11 +1,34 @@
 import { useEffect, useState } from "react";
 import { searchAttractions } from "../api/attractions";
 
+function getAttractionLinks(place) {
+  const links = [];
+
+  // Google Maps link
+  if (place.geocodes?.main?.latitude && place.geocodes?.main?.longitude) {
+    const mapsUrl = `https://www.google.com/maps?q=${place.geocodes.main.latitude},${place.geocodes.main.longitude}`;
+    links.push({ type: 'maps', label: '📍 View on Google Maps', url: mapsUrl });
+  } else if (place.location?.formatted_address) {
+    const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(place.location.formatted_address)}`;
+    links.push({ type: 'maps', label: '📍 View on Google Maps', url: mapsUrl });
+  }
+
+  // Website link (if available from Foursquare)
+  if (place.website) {
+    links.push({ type: 'website', label: '🌐 Visit Website', url: place.website });
+  } else if (place.url) {
+    links.push({ type: 'website', label: '🌐 Visit Website', url: place.url });
+  }
+
+  return links;
+}
+
 export default function Explore() {
   const [search, setSearch] = useState("");
   const [attractions, setAttractions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedAttraction, setSelectedAttraction] = useState(null);
 
   // 🌐 Search attractions by city through the backend/Foursquare
   useEffect(() => {
@@ -75,7 +98,8 @@ export default function Explore() {
         {attractions.map((item) => (
           <div
             key={item.fsq_id || item.id}
-            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-xl hover:-translate-y-1 transition"
+            onClick={() => setSelectedAttraction(item)}
+            className="bg-white rounded-2xl shadow-md p-5 hover:shadow-xl hover:-translate-y-1 transition cursor-pointer"
           >
             <h2 className="text-xl font-bold text-gray-800">
               {item.name}
@@ -86,9 +110,77 @@ export default function Explore() {
             <div className="mt-3 text-sm text-gray-400">
               {item.categories?.[0]?.name || item.distance ? `Category: ${item.categories?.[0]?.name || 'Attraction'}${item.distance ? ` · ${Math.round(item.distance)}m away` : ''}` : 'Attraction'}
             </div>
+
+            <div className="mt-4">
+              <p className="text-blue-600 text-sm font-medium">Click to view details →</p>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* Attraction Details Modal */}
+      {selectedAttraction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">{selectedAttraction.name}</h2>
+              <button
+                onClick={() => setSelectedAttraction(null)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <div>
+                <p className="text-sm text-gray-500">Address</p>
+                <p className="text-gray-800">
+                  {selectedAttraction.location?.formatted_address || selectedAttraction.address || 'No address available'}
+                </p>
+              </div>
+
+              {selectedAttraction.categories?.[0]?.name && (
+                <div>
+                  <p className="text-sm text-gray-500">Category</p>
+                  <p className="text-gray-800">{selectedAttraction.categories[0].name}</p>
+                </div>
+              )}
+
+              {selectedAttraction.distance && (
+                <div>
+                  <p className="text-sm text-gray-500">Distance</p>
+                  <p className="text-gray-800">{Math.round(selectedAttraction.distance)}m away</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {getAttractionLinks(selectedAttraction).map((link) => (
+                <a
+                  key={link.type}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-center font-medium"
+                >
+                  {link.label}
+                </a>
+              ))}
+              {getAttractionLinks(selectedAttraction).length === 0 && (
+                <p className="text-gray-500 text-sm text-center">No external links available for this attraction</p>
+              )}
+            </div>
+
+            <button
+              onClick={() => setSelectedAttraction(null)}
+              className="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

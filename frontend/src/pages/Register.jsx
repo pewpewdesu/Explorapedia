@@ -17,12 +17,22 @@ export default function Register() {
         e.preventDefault();
         setError('');
 
-        if (form.password !== form.confirm) {
-            setError('Passwords do not match');
+        if (!form.username.trim() || !form.email.trim() || !form.password.trim()) {
+            setError('Please fill in all fields.');
             return;
         }
 
-        setLoading(true)
+        if (form.password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        if (form.password !== form.confirm) {
+            setError('Passwords do not match.');
+            return;
+        }
+
+        setLoading(true);
 
         try {
             const res = await api.post('/auth/register',
@@ -31,11 +41,15 @@ export default function Register() {
                     email: form.email,
                     password: form.password
                 });
+            if (!res.data?.token || !res.data?.userId) {
+                setError('Invalid server response. Please try again.');
+                return;
+            }
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('userId', res.data.userId);
             navigate('/');
         } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed. Try again.');
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -113,7 +127,7 @@ export default function Register() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors mt-2"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Creating account...' : 'Create Account'}
                     </button>

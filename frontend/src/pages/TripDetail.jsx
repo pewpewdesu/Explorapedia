@@ -76,33 +76,49 @@ export default function TripDetail() {
 
     async function handleEditItem(dayNum, itemId) {
         try {
+            setAddError('');
+            setAddSuccess('');
             await editItineraryItem(id, dayNum, itemId, {
                 notes: editingNotes,
                 time: editingTime,
             });
             setEditingItemId(null);
+            setAddSuccess('✓ Item updated successfully!');
             await load();
+            setTimeout(() => setAddSuccess(''), 3000);
         } catch (e) {
             console.error(e);
+            setAddError('Failed to update item.');
         }
     }
 
     async function handleRemoveItem(dayNum, itemId) {
         if (!confirm('Remove this item?')) return;
         try {
+            setAddError('');
+            setAddSuccess('');
             await removeItineraryItem(id, dayNum, itemId);
+            setAddSuccess('✓ Item removed from itinerary.');
             await load();
+            setTimeout(() => setAddSuccess(''), 3000);
         } catch (e) {
             console.error(e);
+            setAddError('Failed to remove item.');
         }
     }
 
     async function handleVisibilityChange(newVis) {
         try {
+            setAddError('');
+            setAddSuccess('');
             setVisibility(newVis);
             await updateTripVisibility(id, newVis);
+            setAddSuccess('✓ Trip visibility updated!');
+            setTimeout(() => setAddSuccess(''), 3000);
         } catch (e) {
             console.error(e);
+            setVisibility(visibility); // Revert on error
+            setAddError('Failed to update visibility.');
         }
     }
 
@@ -135,6 +151,11 @@ export default function TripDetail() {
             setAddError('');
             setAddSuccess('');
 
+            if (!place?.name) {
+                setAddError('Invalid attraction data. Please try again.');
+                return;
+            }
+
             const item = {
                 fsq_id: place.fsq_id || place.id,
                 name: place.name,
@@ -149,7 +170,7 @@ export default function TripDetail() {
             setTimeout(() => setAddSuccess(''), 3000);
         } catch (e) {
             console.error(e);
-            setAddError('Failed to add attraction.');
+            setAddError('Failed to add attraction. Please try again.');
         }
     }
 

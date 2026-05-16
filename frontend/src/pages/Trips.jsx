@@ -8,14 +8,24 @@ export default function Trips() {
     const [city, setCity] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [error, setError] = useState('');
+    const [createSuccess, setCreateSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
     const navigate = useNavigate();
 
     async function load() {
         try {
+            setLoading(true);
+            setError('');
             const data = await listTrips();
             setTrips(data || []);
         } catch (e) {
             console.error(e);
+            setError('Failed to load trips. Please refresh the page.');
+            setTrips([]);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -23,21 +33,47 @@ export default function Trips() {
 
     async function handleCreate(e) {
         e.preventDefault();
+        setError('');
+        setCreateSuccess('');
+
+        if (!name.trim() || !city.trim()) {
+            setError('Please fill in trip name and city.');
+            return;
+        }
+
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            setError('Start date must be before end date.');
+            return;
+        }
+
         try {
+            setLoading(true);
             const res = await createTrip({ name, city, startDate, endDate });
+            setCreateSuccess('✓ Trip created successfully!');
             setName('');
             setCity('');
             setStartDate('');
             setEndDate('');
-            if (res.tripId) navigate(`/trips/${res.tripId}`);
+            if (res?.tripId) navigate(`/trips/${res.tripId}`);
             else await load();
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+            setError(e.response?.data?.message || 'Failed to create trip. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function handleDelete(id) {
-        if (!confirm('Delete this trip?')) return;
-        await deleteTrip(id);
-        await load();
+        if (!confirm('Delete this trip? This action cannot be undone.')) return;
+        try {
+            setDeleteError('');
+            await deleteTrip(id);
+            await load();
+        } catch (e) {
+            console.error(e);
+            setDeleteError('Failed to delete trip. Please try again.');
+        }
     }
 
     return (
@@ -47,6 +83,16 @@ export default function Trips() {
 
                 <form onSubmit={handleCreate} className="mb-8 bg-white p-6 rounded shadow">
                     <h3 className="font-semibold text-lg mb-4">Create New Trip</h3>
+                    {error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {error}
+                        </div>
+                    )}
+                    {createSuccess && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                            {createSuccess}
+                        </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
                         <input
                             value={name}
@@ -74,11 +120,21 @@ export default function Trips() {
                             onChange={(e) => setEndDate(e.target.value)}
                             className="p-2 border rounded"
                         />
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
-                            Create Trip
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Creating...' : 'Create Trip'}
                         </button>
                     </div>
                 </form>
+
+                {deleteError && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {deleteError}
+                    </div>
+                )}
 
                 <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {trips.map((t) => (

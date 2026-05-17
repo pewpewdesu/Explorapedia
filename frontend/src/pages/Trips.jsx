@@ -87,7 +87,7 @@ export default function Trips() {
                 </div>
 
                 {/* trip card */}
-                <form onSubmit={handleCreate} className="mb-8 bg-white p-6 rounded-2xl shadow">
+                <form onSubmit={handleCreate} className="mb-8 bg-white p-6 rounded-2xl shadow w-full">
                         <p className = "text-black text-medium mb-4">Create a trip...</p>
 
                         {error && (
@@ -141,11 +141,11 @@ export default function Trips() {
                                     className="p-2 border rounded bg-gray-200"
                                 />
                             </div>
-                            <div className ="flex justify-end">
+                            <div className ="flex gap-2">
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="bg-indifo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded transition disabled:opacity-50 disabled:cursor-not-allowed "
                                 >
                                     {loading ? 'Creating...' : 'Create Trip'}
                                 </button>

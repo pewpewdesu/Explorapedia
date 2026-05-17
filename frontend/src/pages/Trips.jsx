@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listTrips, createTrip, deleteTrip } from '../api/trips';
+import SharedTrips from './SharedTrips';
 
 export default function Trips() {
     const [trips, setTrips] = useState([]);
@@ -86,7 +87,7 @@ export default function Trips() {
                     <p className = "text-gray-500 text-sm">Your journey starts here.</p> 
                 </div>
 
-                {/* trip card */}
+                {/* create trip card */}
                 <form onSubmit={handleCreate} className="mb-8 bg-white p-6 rounded-2xl shadow w-full">
                         <p className = "text-black text-medium mb-4">Create a trip...</p>
 
@@ -141,7 +142,7 @@ export default function Trips() {
                                     className="p-2 border rounded bg-gray-200"
                                 />
                             </div>
-                            <div className ="flex gap-2">
+                            <div className ="flex">
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -151,7 +152,7 @@ export default function Trips() {
                                 </button>
                             </div>
                         </div>
-                        </form>
+                </form>
 
                         {deleteError && (
                             <div className = "bg-red-100 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm">
@@ -187,7 +188,7 @@ export default function Trips() {
                                                 </p>
                                             </div>
                                             <div className = "flex items-center gap-4">
-                                                <Link to={`/trips/${t._id}`} className="text-blue-600 hover:underline text-sm flex-1">
+                                                <Link to={`/trips/${t._id}`} className="text-indigo-500 hover:underline text-sm flex-1">
                                                     Open
                                                 </Link>
                                                 <button onClick={() => handleDelete(t._id)} className="text-red-600 hover:underline text-sm">
@@ -200,8 +201,49 @@ export default function Trips() {
                                 </div>
                             )}
                         </div>
+                        
+                         {/* Shared trips section */}
+                            <div>
+                                <h2 className = "font-bold text;lg mb-1">Shared Trips</h2>
+                                <p className = "text-gray-400 text-xs mb-4">Discover amazing trips from other travelers.</p>
+                                
+                                {SharedTrips.length === 0 ? (
+                                    <div className="bg-white rounded-lg shadow p-12 text-center w-full">
+                                        {/* <p className="text-4xl mb-3">🗺️</p> */}
+                                        <p className="text-gray-600 font-medium">No trips shared yet</p>
+                                        <p className="text-gray-400 text-sm mt-1">Share your first trip to get started!</p>
+                                    </div>
+                                ) : (
+                                    <div className = "space-y-3">
+                                        {SharedTrips.map((t) => (
+                                            <div key={t._id} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
+                                                <div className = "w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center text-2x1">
+                                                    
+                                                </div>
+                                                <div className = "flex-1">
+                                                    <p className = "font-semibold text-sm">{t.name}</p>
+                                                    <p className = "text-gray-400 text-xs">
+                                                        {t.city}
+                                                        {t.startDate && t.endDate && (
+                                                            <> • {new Date(t.startDate).toLocaleDateString()} - {new Date(t.endDate).toLocaleDateString()}</>
+                                                        )}
+                                                    </p>
+                                                </div>
+
+                                                <div className = "flex items-center gap-4">
+                                                    <Link to={`/shared-trips/${t._id}`} className="text-indigo-500 hover:underline text-sm flex-1">
+                                                        Open
+                                                    </Link>
+                                                </div>
+                                        
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}           
+                        </div>
                       
-                    </div>
+            </div>
+                    
                 
          </div>
     );

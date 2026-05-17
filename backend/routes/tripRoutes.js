@@ -4,6 +4,7 @@ const { ObjectId } = require('mongodb');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const Trip = require('../models/Trip');
+const { getFriends } = require('../models/User');
 const catchAsyncErrors = require('../middleware/errorHandler');
 
 // Create a trip
@@ -124,6 +125,20 @@ router.delete('/:id', authMiddleware, catchAsyncErrors(async (req, res) => {
     const success = await Trip.deleteTrip(req.params.id, req.user.userId);
     if (!success) return res.status(404).json({ message: 'Trip not found or not authorized' });
     res.json({ message: 'Trip deleted' });
+}));
+
+// Get shared trips from friends (marked as 'friends' visibility)
+router.get('/shared/friends/list', authMiddleware, catchAsyncErrors(async (req, res) => {
+    const userId = req.user.userId;
+    const friends = await getFriends(userId);
+    const friendIds = friends.map(f => f._id);
+
+    if (friendIds.length === 0) {
+        return res.json([]);
+    }
+
+    const sharedTrips = await Trip.getSharedTripsFromFriends(userId, friendIds);
+    res.json(sharedTrips);
 }));
 
 // ============= SHARED TRIPS (PUBLIC BROWSING) =============

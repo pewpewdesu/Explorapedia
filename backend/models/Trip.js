@@ -144,6 +144,19 @@ async function deleteTrip(tripId, userId) {
     return res.deletedCount === 1;
 }
 
+async function getSharedTripsFromFriends(userId, friendIds) {
+    const db = getDb();
+    // Get trips from friends that are marked as 'friends' visibility
+    return db
+        .collection('trips')
+        .find({
+            userId: { $in: friendIds.map(id => new ObjectId(id)) },
+            visibility: 'friends'
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
+}
+
 module.exports = {
     createTrip,
     getTripsByUser,
@@ -155,4 +168,5 @@ module.exports = {
     getPublicTrips,
     getPublicTripById,
     deleteTrip,
+    getSharedTripsFromFriends,
 };

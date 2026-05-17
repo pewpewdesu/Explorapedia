@@ -1,173 +1,157 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 export default function Friends() {
-    const navigate = useNavigate();
-    const [friendTrips, setFriendTrips] = useState([]);
+    const [friends, setFriends] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [newFriendEmail, setNewFriendEmail] = useState('');
-    const [addFriendError, setAddFriendError] = useState('');
-    const [addFriendSuccess, setAddFriendSuccess] = useState('');
+    const [searchEmail, setSearchEmail] = useState('');
+    const [searchResult, setSearchResult] = useState(null);
+    const [searchError, setSearchError] = useState('');
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [addFriendLoading, setAddFriendLoading] = useState(false);
 
-    const token = localStorage.getItem('token');
+    // Load friends on mount
+    useEffect(() => {
+        loadFriends();
+    }, []);
 
     async function loadFriends() {
         try {
             setLoading(true);
             setError('');
-            // Fetch trips shared with friends visibility
-            const res = await api.get('/trips');
-            const trips = res.data;
-
-            // Filter trips that have friends visibility
-            const friendSharedTrips = trips.filter(trip => trip.visibility === 'friends');
-            setFriendTrips(friendSharedTrips);
+            const res = await api.get('/auth/friends/list');
+            setFriends(res.data || []);
         } catch (err) {
             console.error(err);
-            setError('Failed to load friend trips.');
+            setError('Failed to load friends.');
         } finally {
             setLoading(false);
         }
     }
 
-    useEffect(() => {
-        if (!token) {
-            navigate('/login');
-            return;
-        }
-        loadFriends();
-    }, [token, navigate]);
-
-    async function handleAddFriend(e) {
+    async function handleSearchFriend(e) {
         e.preventDefault();
-        setAddFriendError('');
-        setAddFriendSuccess('');
+        setSearchError('');
+        setSearchResult(null);
 
-        if (!newFriendEmail.trim()) {
-            setAddFriendError('Please enter a friend\'s email');
+        if (!searchEmail.trim()) {
+            setSearchError('Please enter an email address');
             return;
         }
 
         try {
-            // Note: This endpoint would need to be implemented on the backend
-            // For now, we'll show a friendly message
-            await api.post('/friends/add', { email: newFriendEmail });
-            setAddFriendSuccess(`✓ Friend request sent to ${newFriendEmail}!`);
-            setNewFriendEmail('');
-            setTimeout(() => setAddFriendSuccess(''), 3000);
-            await loadFriends();
+            setSearchLoading(true);
+            const res = await api.get(`/auth/search/${encodeURIComponent(searchEmail)}`);
+            setSearchResult(res.data);
         } catch (err) {
-            console.error(err);
-            // Show a helpful message if endpoint doesn't exist yet
             if (err.response?.status === 404) {
-                setAddFriendError('Friend management feature coming soon! Make sure to share your trips with friends by setting visibility to "Friends Only".');
+                setSearchError('User not found');
+            } else if (err.response?.status === 400) {
+                setSearchError(err.response?.data?.message || 'Cannot search this user');
             } else {
-                setAddFriendError('Failed to add friend. Please try again.');
+                setSearchError('Failed to search user');
             }
+            setSearchResult(null);
+        } finally {
+            setSearchLoading(false);
         }
     }
 
-    if (!token) {
-        return null;
+    async function handleAddFriend(userId) {
+        try {
+            setAddFriendLoading(true);
+            await api.post('/auth/friends/add', { email: searchEmail });
+            // Clear search and reload friends
+            setSearchEmail('');
+            setSearchResult(null);
+            await loadFriends();
+        } catch (err) {
+            console.error(err);
+            setSearchError(err.response?.data?.message || 'Failed to add friend');
+        } finally {
+            setAddFriendLoading(false);
+        }
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-2">👥 Friends</h1>
-                    <p className="text-gray-600">Connect with friends and see trips shared with you</p>
-                </div>
+        <div className="flex flex-col gap-6 h-full">
+            {/* Search Friend Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h3 className="font-bold text-lg mb-4">Add a Friend</h3>
+                <form onSubmit={handleSearchFriend} className="flex gap-2 mb-4">
+                    <input
+                        type="email"
+                        value={searchEmail}
+                        onChange={(e) => setSearchEmail(e.target.value)}
+                        placeholder="Enter friend's email address..."
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    />
+                    <button
+                        type="submit"
+                        disabled={searchLoading}
+                        className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {searchLoading ? 'Searching...' : 'Search'}
+                    </button>
+                </form>
 
-                {/* Add Friend Section */}
-                <div className="bg-white rounded shadow p-6 mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Add a Friend</h2>
-                    <form onSubmit={handleAddFriend} className="flex gap-2">
-                        <input
-                            type="email"
-                            value={newFriendEmail}
-                            onChange={(e) => setNewFriendEmail(e.target.value)}
-                            placeholder="Enter friend's email address"
-                            className="flex-1 p-2 border rounded"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-                        >
-                            Add Friend
-                        </button>
-                    </form>
-                    {addFriendError && (
-                        <p className="text-red-600 text-sm mt-2">{addFriendError}</p>
-                    )}
-                    {addFriendSuccess && (
-                        <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 rounded mt-2 text-sm">
-                            {addFriendSuccess}
-                        </div>
-                    )}
-                    <p className="text-gray-600 text-sm mt-4 italic">
-                        💡 Tip: Share your trips with friends by setting trip visibility to "Friends Only" in your trip details.
-                    </p>
-                </div>
-
-                {/* Trips Shared with Friends */}
-                <div>
-                    <h2 className="text-xl font-semibold mb-4">Trips Shared with Friends 🗺️</h2>
-
-                    {loading ? (
-                        <p className="text-gray-500">Loading...</p>
-                    ) : error ? (
-                        <p className="text-red-600">{error}</p>
-                    ) : friendTrips.length === 0 ? (
-                        <div className="bg-white rounded shadow p-8 text-center">
-                            <p className="text-gray-500 text-lg">No trips shared with friends yet</p>
-                            <p className="text-gray-400 text-sm mt-2">
-                                Create or edit a trip and set the visibility to "Friends Only" to share it
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-2 gap-6">
-                            {friendTrips.map((trip) => (
-                                <div key={trip._id} className="bg-white rounded shadow hover:shadow-lg transition">
-                                    <div className="p-6">
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                            {trip.name}
-                                        </h3>
-                                        <p className="text-gray-600 mb-4">📍 {trip.city}</p>
-                                        {trip.startDate && trip.endDate && (
-                                            <p className="text-sm text-gray-500 mb-4">
-                                                {new Date(trip.startDate).toLocaleDateString()} - {new Date(trip.endDate).toLocaleDateString()}
-                                            </p>
-                                        )}
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            {trip.itinerary?.reduce((sum, day) => sum + (day.items?.length || 0), 0) || 0} attractions planned
-                                        </p>
-                                        <button
-                                            onClick={() => navigate(`/trips/${trip._id}`)}
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
-                                        >
-                                            View Trip Details
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Friends List Section (Placeholder) */}
-                <div className="mt-12 bg-white rounded shadow p-6">
-                    <h2 className="text-xl font-semibold mb-4">Your Friends</h2>
-                    <div className="text-center py-8">
-                        <p className="text-gray-500 mb-2">👨‍👩‍👧‍👦 Friend list coming soon!</p>
-                        <p className="text-gray-400 text-sm">
-                            Full friend management features will be available in the next update.
-                        </p>
+                {searchError && (
+                    <div className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm mb-4">
+                        {searchError}
                     </div>
-                </div>
+                )}
+
+                {searchResult && (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="font-semibold text-sm">{searchResult.username}</p>
+                                <p className="text-gray-500 text-xs">{searchResult.email}</p>
+                            </div>
+                            {searchResult.isAlreadyFriend ? (
+                                <span className="text-green-600 text-sm font-medium">✓ Friends</span>
+                            ) : (
+                                <button
+                                    onClick={() => handleAddFriend(searchResult._id)}
+                                    disabled={addFriendLoading}
+                                    className="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {addFriendLoading ? 'Adding...' : 'Add Friend'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Friends List Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex-1 overflow-y-auto">
+                <h3 className="font-bold text-lg mb-4">Your Friends ({friends.length})</h3>
+
+                {error && (
+                    <div className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm mb-4">
+                        {error}
+                    </div>
+                )}
+
+                {loading ? (
+                    <p className="text-gray-500 text-sm">Loading friends...</p>
+                ) : friends.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No friends yet. Search and add a friend above!</p>
+                ) : (
+                    <div className="space-y-3">
+                        {friends.map((friend) => (
+                            <div key={friend._id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center justify-between">
+                                <div>
+                                    <p className="font-semibold text-sm">{friend.username}</p>
+                                    <p className="text-gray-500 text-xs">{friend.email}</p>
+                                </div>
+                                <span className="text-indigo-600 text-xs font-medium">👥</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

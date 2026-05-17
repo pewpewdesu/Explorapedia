@@ -311,3 +311,4 @@ npm run dev
 - Database operations should go through model files in `models/` for consistency and reusability
 - If adding new routes, follow the existing pattern: import model methods, wrap handlers with `catchAsyncErrors()`, and let the centralized error handler manage responses
 - Each developer can work on their own area after installing dependencies and setting up the `.env` file
+- For the new frontend edits you must run npm install react-icons in your terminal so there are no errors

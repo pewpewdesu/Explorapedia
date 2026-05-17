@@ -56,8 +56,8 @@ export default function Register() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-[80vh]">
-            <div className="bg-white rounded-2x1 shadow-md p-8 w-full max-w-md">
+        <div className="min-h-screen bg-[#eef0fb] flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-md p-8 w-full max-w-md">
 
                 <h2 className="text-2x1 font-bold text-gray-900 mb-6 text-center">
                     Create an Account
@@ -73,54 +73,54 @@ export default function Register() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">Username</label>
+                        <label className="text-sm font-medium text-black">Username</label>
                         <input
                             type="text"
                             name="username"
                             value={form.username}
                             onChange={handleChange}
-                            placeholder="Choose a username"
+                            placeholder=""
                             required
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">Email</label>
+                        <label className="text-sm font-medium text-black">Email</label>
                         <input
                             type="email"
                             name="email"
                             value={form.email}
                             onChange={handleChange}
-                            placeholder="Enter your email"
+                            placeholder=""
                             required
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">Password</label>
+                        <label className="text-sm font-medium text-black">Password</label>
                         <input
                             type="password"
                             name="password"
                             value={form.password}
                             onChange={handleChange}
-                            placeholder="Choose a password"
+                            placeholder=""
                             required
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+                        <label className="text-sm font-medium text-black">Confirm Password</label>
                         <input
                             type="password"
                             name="confirm"
                             value={form.confirm}
                             onChange={handleChange}
-                            placeholder="Repeat your password"
+                            placeholder=""
                             required
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="bg-gray-200 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         />
                     </div>
 

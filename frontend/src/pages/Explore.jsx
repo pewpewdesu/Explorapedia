@@ -60,11 +60,11 @@ export default function Explore() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+    <div className="min-h-screen bg-[#eef0fb] from-blue-50 via-white to-purple-50 p-8">
 
       {/* Title */}
       <h1 className="text-4xl font-bold text-center mb-6">
-        Explore Attractions 🌍
+        Explore Attractions
       </h1>
 
       {/* Search Bar */}

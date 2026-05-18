@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPublicTrip } from '../api/trips';
+import api from '../services/api';
 
 export default function SharedTripDetail() {
     const { id } = useParams();
@@ -11,8 +12,17 @@ export default function SharedTripDetail() {
 
     async function load() {
         try {
-            const data = await getPublicTrip(id);
-            setTrip(data);
+            // First try to get as a friend's shared trip (requires auth)
+            try {
+                const data = await api.get(`/trips/shared/friends/${id}`);
+                setTrip(data.data);
+                return;
+            } catch (friendError) {
+                // If that fails, try as a public trip (no auth required)
+                const data = await getPublicTrip(id);
+                setTrip(data);
+                return;
+            }
         } catch (e) {
             console.error(e);
             setError('Trip not found or is private');
@@ -25,10 +35,10 @@ export default function SharedTripDetail() {
         <div className="p-6 min-h-screen bg-gray-50">
             <p className="text-red-500">{error}</p>
             <button
-                onClick={() => navigate('/shared-trips')}
+                onClick={() => navigate('/trips')}
                 className="mt-4 text-blue-600 hover:underline"
             >
-                Back to Shared Trips
+                Back to Trips
             </button>
         </div>
     );
@@ -49,10 +59,10 @@ export default function SharedTripDetail() {
             <div className="max-w-4xl mx-auto">
                 {/* Back button */}
                 <button
-                    onClick={() => navigate('/shared-trips')}
+                    onClick={() => navigate('/trips')}
                     className="text-blue-600 hover:underline text-sm mb-4 inline-block"
                 >
-                    ← Back to Shared Trips
+                    ← Back to Trips
                 </button>
 
                 {/* Trip header */}
@@ -75,8 +85,8 @@ export default function SharedTripDetail() {
                                 key={dayNum}
                                 onClick={() => setSelectedDay(dayNum)}
                                 className={`px-4 py-2 rounded font-medium transition ${selectedDay === dayNum
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white border border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
                                 Day {dayNum}

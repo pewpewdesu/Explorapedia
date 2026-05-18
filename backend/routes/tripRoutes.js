@@ -27,6 +27,61 @@ router.get('/', authMiddleware, catchAsyncErrors(async (req, res) => {
     res.json(trips);
 }));
 
+// ============= PUBLIC SHARED TRIPS (no auth required) =============
+// IMPORTANT: These routes must come BEFORE the /:id route to match correctly
+
+// Get shared trips from friends (marked as 'friends' visibility)
+router.get('/shared/friends/list', authMiddleware, catchAsyncErrors(async (req, res) => {
+    const userId = req.user.userId;
+    const friends = await getFriends(userId);
+    const friendIds = friends.map(f => f._id);
+
+    if (friendIds.length === 0) {
+        return res.json([]);
+    }
+
+    const sharedTrips = await Trip.getSharedTripsFromFriends(userId, friendIds);
+    res.json(sharedTrips);
+}));
+
+// Get a specific trip from a friend (requires auth)
+router.get('/shared/friends/:id', authMiddleware, catchAsyncErrors(async (req, res) => {
+    const userId = req.user.userId;
+    const tripId = req.params.id;
+
+    // Get user's friends
+    const friends = await getFriends(userId);
+    const friendIds = friends.map(f => f._id.toString());
+
+    // Get the trip
+    const trip = await Trip.getTripById(tripId);
+    if (!trip) return res.status(404).json({ message: 'Trip not found' });
+
+    // Check if trip belongs to a friend and has 'friends' visibility
+    if (trip.visibility !== 'friends' || !friendIds.includes(trip.userId.toString())) {
+        return res.status(403).json({ message: 'Not authorized to view this trip' });
+    }
+
+    res.json(trip);
+}));
+
+// Get public trips feed (no auth required)
+router.get('/shared/feed', catchAsyncErrors(async (req, res) => {
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const skip = parseInt(req.query.skip, 10) || 0;
+    const trips = await Trip.getPublicTrips(limit, skip);
+    res.json(trips);
+}));
+
+// Get a public trip by id (no auth required)
+router.get('/shared/:id', catchAsyncErrors(async (req, res) => {
+    const trip = await Trip.getPublicTripById(req.params.id);
+    if (!trip) return res.status(404).json({ message: 'Trip not found or is private' });
+    res.json(trip);
+}));
+
+// ============= PRIVATE TRIP ROUTES (require auth) =============
+
 // Get a single trip
 router.get('/:id', authMiddleware, catchAsyncErrors(async (req, res) => {
     const trip = await Trip.getTripById(req.params.id);
@@ -125,37 +180,6 @@ router.delete('/:id', authMiddleware, catchAsyncErrors(async (req, res) => {
     const success = await Trip.deleteTrip(req.params.id, req.user.userId);
     if (!success) return res.status(404).json({ message: 'Trip not found or not authorized' });
     res.json({ message: 'Trip deleted' });
-}));
-
-// Get shared trips from friends (marked as 'friends' visibility)
-router.get('/shared/friends/list', authMiddleware, catchAsyncErrors(async (req, res) => {
-    const userId = req.user.userId;
-    const friends = await getFriends(userId);
-    const friendIds = friends.map(f => f._id);
-
-    if (friendIds.length === 0) {
-        return res.json([]);
-    }
-
-    const sharedTrips = await Trip.getSharedTripsFromFriends(userId, friendIds);
-    res.json(sharedTrips);
-}));
-
-// ============= SHARED TRIPS (PUBLIC BROWSING) =============
-
-// Get public trips feed (no auth required)
-router.get('/shared/feed', catchAsyncErrors(async (req, res) => {
-    const limit = parseInt(req.query.limit, 10) || 20;
-    const skip = parseInt(req.query.skip, 10) || 0;
-    const trips = await Trip.getPublicTrips(limit, skip);
-    res.json(trips);
-}));
-
-// Get a public trip by id (no auth required)
-router.get('/shared/:id', catchAsyncErrors(async (req, res) => {
-    const trip = await Trip.getPublicTripById(req.params.id);
-    if (!trip) return res.status(404).json({ message: 'Trip not found or is private' });
-    res.json(trip);
 }));
 
 module.exports = router;

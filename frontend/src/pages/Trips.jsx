@@ -6,6 +6,7 @@ import api from '../services/api';
 export default function Trips() {
     const [trips, setTrips] = useState([]);
     const [sharedTrips, setSharedTrips] = useState([]);
+    const [publicTrips, setPublicTrips] = useState([]);
     const [name, setName] = useState('');
     const [city, setCity] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -15,6 +16,7 @@ export default function Trips() {
     const [loading, setLoading] = useState(false);
     const [deleteError, setDeleteError] = useState('');
     const [sharedTripsLoading, setSharedTripsLoading] = useState(false);
+    const [publicTripsLoading, setPublicTripsLoading] = useState(false);
     const navigate = useNavigate();
 
     async function load() {
@@ -34,6 +36,18 @@ export default function Trips() {
                 setSharedTrips([]);
             } finally {
                 setSharedTripsLoading(false);
+            }
+
+            // Load public trips
+            try {
+                setPublicTripsLoading(true);
+                const publicData = await api.get('/trips/shared/feed');
+                setPublicTrips(publicData.data || []);
+            } catch (e) {
+                console.error('Failed to load public trips:', e);
+                setPublicTrips([]);
+            } finally {
+                setPublicTripsLoading(false);
             }
         } catch (e) {
             console.error(e);
@@ -234,6 +248,45 @@ export default function Trips() {
                                 <div key={t._id} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
                                     <div className=" w-full rounded-xl bg-purple-100 flex items-center justify-center text-2xl">
                                         🤝
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-sm">{t.name}</p>
+                                        <p className="text-gray-400 text-xs">
+                                            {t.city}
+                                            {t.startDate && t.endDate && (
+                                                <> • {new Date(t.startDate).toLocaleDateString()} - {new Date(t.endDate).toLocaleDateString()}</>
+                                            )}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <Link to={`/shared-trips/${t._id}`} className="text-blue-600 hover:underline text-sm">
+                                            View
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* public trips */}
+                <div className="mb-8">
+                    <h2 className="font-bold text-lg mb-1">Explore Public Trips</h2>
+                    <p className="text-gray-400 text-xs mb-4">Discover amazing trips shared publicly by other travelers.</p>
+
+                    {publicTripsLoading ? (
+                        <p className="text-gray-500 text-sm">Loading public trips...</p>
+                    ) : publicTrips.length === 0 ? (
+                        <div className="bg-white rounded-2xl shadow p-12 text-center w-full">
+                            <p className="text-gray-500 font-medium">No public trips yet</p>
+                            <p className="text-gray-400 text-sm mt-1">Be the first to share your adventure!</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {publicTrips.map((t) => (
+                                <div key={t._id} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
+                                    <div className="w-full rounded-xl bg-blue-100 flex items-center justify-center text-2xl">
+                                        🌍
                                     </div>
                                     <div className="flex-1">
                                         <p className="font-semibold text-sm">{t.name}</p>

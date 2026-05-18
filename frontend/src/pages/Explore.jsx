@@ -184,30 +184,30 @@ export default function Explore() {
 
       {/* recommended grid */}
       {!search && (
-        <div className = "max-w 5xl mx-auto">
-          <h2 className = "text-xl font-bold mb-2">Recommended Places</h2>
-          <p className = "text-gray-400 text-sm mb-4">Popular destinations to inspire your next trip.</p>
+        <div className="max-w 5xl mx-auto">
+          <h2 className="text-xl font-bold mb-2">Recommended Places</h2>
+          <p className="text-gray-400 text-sm mb-4">Popular destinations to inspire your next trip.</p>
 
-          <div className = "grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[
-              {name: "Paris", country: "France", img:"https://images.unsplash.com/photo-1776706261290-7c53ead8e45c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDk1fEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D"},
-              {name: "London", country: "England", img:"https://images.unsplash.com/photo-1776549821171-fd5b5d310f30?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDExN3xGem8zenVPSE42d3x8ZW58MHx8fHx8"},
-              {name: "Sydney", country: "Austrailia", img: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTf6k9YCySEZ7W91pfpkEPGSD7RDwTQ23ePfZAo3SPdBqMqUtoPKXKchQKi72oHRF8VQC9Jsq-PI54QYCxMAiFo-98&s=19"},
-              {name: "Bangkok", country:"Thailand", img: "https://images.unsplash.com/photo-1773414001281-7e1cadd04a79?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEyOHxGem8zenVPSE42d3x8ZW58MHx8fHx8" },
-              {name: "New York", country: "USA", img: "https://plus.unsplash.com/premium_photo-1749200412744-df6cf06f0496?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDYyfEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D"},
-              {name: "Tokyo", country: "Japan", img: "https://images.unsplash.com/photo-1775975405747-9b512d6e93a4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"},
+              { name: "Paris", country: "France", img: "https://images.unsplash.com/photo-1776706261290-7c53ead8e45c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDk1fEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D" },
+              { name: "London", country: "England", img: "https://images.unsplash.com/photo-1776549821171-fd5b5d310f30?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDExN3xGem8zenVPSE42d3x8ZW58MHx8fHx8" },
+              { name: "Sydney", country: "Austrailia", img: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTf6k9YCySEZ7W91pfpkEPGSD7RDwTQ23ePfZAo3SPdBqMqUtoPKXKchQKi72oHRF8VQC9Jsq-PI54QYCxMAiFo-98&s=19" },
+              { name: "Bangkok", country: "Thailand", img: "https://images.unsplash.com/photo-1773414001281-7e1cadd04a79?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDEyOHxGem8zenVPSE42d3x8ZW58MHx8fHx8" },
+              { name: "New York", country: "USA", img: "https://plus.unsplash.com/premium_photo-1749200412744-df6cf06f0496?w=1000&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDYyfEZ6bzN6dU9ITjZ3fHxlbnwwfHx8fHw%3D" },
+              { name: "Tokyo", country: "Japan", img: "https://images.unsplash.com/photo-1775975405747-9b512d6e93a4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" },
             ].map((place) => (
               <div
-                key ={place.name}
+                key={place.name}
                 className="relative rounded-2xl overflow-hidden cursor-pointer group h-48"
               >
                 <img
-                  src = {place.img}
-                  alt = {place.name}
-                  className = "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  src={place.img}
+                  alt={place.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
-                <div className = "absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-0 left-0 p-4">
                   <p className="text-white font-bold text-lg">{place.name}</p>
                   <p className="text-gray-300 text-xs">{place.country}</p>

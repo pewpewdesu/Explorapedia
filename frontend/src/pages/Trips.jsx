@@ -180,7 +180,7 @@ export default function Trips() {
                     <p className="text-gray-400 text-xs mb-4">View your personal trips.</p>
 
                     {trips.length === 0 ? (
-                        <div className="w-full bg-white rounded shadow p-12 text-center">
+                        <div className="w-full bg-white rounded-2xl shadow p-12 text-center">
                             <p className="text-4xl mb-3">🗺️</p>
                             <p className="text-gray-500 font-medium">No trips yet</p>
                             <p className="text-gray-400 text-sm mt-1">Create your first trip to get started!</p>

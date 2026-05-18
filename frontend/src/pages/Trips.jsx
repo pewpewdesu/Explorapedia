@@ -224,8 +224,7 @@ export default function Trips() {
                     {sharedTripsLoading ? (
                         <p className="text-gray-500 text-sm">Loading shared trips...</p>
                     ) : sharedTrips.length === 0 ? (
-                        <div className="bg-white rounded shadow p-12 text-center max-w-md mx-auto mt-8">
-                            <p className="text-4xl mb-3">🤝</p>
+                        <div className="bg-white rounded-2xl shadow p-12 text-center w-full">
                             <p className="text-gray-500 font-medium">No shared trips</p>
                             <p className="text-gray-400 text-sm mt-1">Your friends haven't shared any trips with you yet!</p>
                         </div>
@@ -233,7 +232,7 @@ export default function Trips() {
                         <div className="space-y-3">
                             {sharedTrips.map((t) => (
                                 <div key={t._id} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center text-2xl">
+                                    <div className=" w-full rounded-xl bg-purple-100 flex items-center justify-center text-2xl">
                                         🤝
                                     </div>
                                     <div className="flex-1">
